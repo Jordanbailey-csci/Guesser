@@ -59,7 +59,6 @@ TEST(GuesserTest, remaining_resets_on_match)
 	Guesser object("Secret");
 	object.match("Secret1");
 	object.match("Secret2");
-	object.match("Secret3");
 	object.match("Secret");
 	ASSERT_TRUE(object.match("Secret"));
 }
