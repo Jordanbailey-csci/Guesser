@@ -14,9 +14,58 @@ class GuesserTest : public ::testing::Test
 		virtual void TearDown(){} //clean up after each test, (before destructor)
 };
 
-// Example "smoke test" (can be deleted)
-TEST(GuesserTest, smoke_test)
+TEST(GuesserTest, distance)
 {
-  Guesser object("Secret");
-  ASSERT_EQ( 1+1, 2 );
+	Guesser object("Secret");
+	ASSERT_EQ( object.distance("Secret"), 0);
+	ASSERT_EQ( object.distance("Dog"), 6);
+	ASSERT_EQ( object.distance("Secrets"), 1);
+	ASSERT_EQ( object.distance("Sec"), 3);
+	ASSERT_EQ( object.distance("Sekret"), 1);	
+}
+
+TEST(GuesserTest, locked_out)
+{
+	Guesser object("Secret");
+	ASSERT_FALSE(object.match("Secrettt"));
+	object.match("Secret1");
+	object.match("Secret2");
+	object.match("Secret3");
+	ASSERT_FALSE(object.match("Secret"));
+}
+
+TEST(GuesserTest, truncate_long_secret)
+{
+	Guesser object("This is a very long secret that should be truncated.");
+	ASSERT_EQ( object.distance("This is a very long secret that "), 0);
+}
+
+TEST(GuesserTest, brute_force_lock)
+{
+	Guesser object("Secret");
+	object.match("Secrettt");
+	ASSERT_FALSE(object.match("Secret"));
+}
+
+TEST(GuesserTest, distance_two_no_lock)
+{
+	Guesser object("Secret");
+	object.match("Secrpp");
+	ASSERT_TRUE(object.match("Secret"));
+}
+
+TEST(GuesserTest, remaining_resets_on_match)
+{
+	Guesser object("Secret");
+	object.match("Secret1");
+	object.match("Secret2");
+	object.match("Secret");
+	object.match("Secret3");
+	ASSERT_TRUE(object.match("Secret"));
+}
+
+TEST(GuesserTest, distance_capped_at_secret_length)
+{
+	Guesser object("Secret");
+	ASSERT_EQ(object.distance("GGGGGGGGGGGGGGG"), 6);
 }
